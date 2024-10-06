@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Upload</title>
+</head>
+<body>
+    <input type="file" id="fileInput" accept=".csv" />
+    <button id="uploadButton">Upload</button>
+    <img id="resultImage" alt="Result Image" style="display: none;"/>
+    
+    <script>
+        document.getElementById('uploadButton').addEventListener('click', async () => {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('Please select a CSV file to upload.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('https://nasa.thebayre.com:5000/seismic_detection', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.statusText);
+                }
+
+                // Assuming the response contains the image as binary data
+                const blob = await response.blob();
+                const imgElement = document.getElementById('resultImage');
+                imgElement.src = URL.createObjectURL(blob); // Create a URL for the image blob
+                imgElement.style.display = 'block'; // Make the image visible
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
